@@ -1,17 +1,21 @@
-from openai import OpenAI
+import google.generativeai as genai
 
-from app.config import OPENAI_API_KEY
+from app.config import GEMINI_API_KEY
 from app.config import MODEL_NAME
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
+
+model = genai.GenerativeModel(MODEL_NAME)
 
 
 def ask_llm(history):
 
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=history,
-        temperature=0.5
-    )
+    prompt = ""
 
-    return response.choices[0].message.content
+    for msg in history:
+
+        prompt += f"{msg['role']} : {msg['content']}\n"
+
+    response = model.generate_content(prompt)
+
+    return response.text
